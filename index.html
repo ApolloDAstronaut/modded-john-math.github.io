@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modded Weather Duck's Roguelike Adventure</title>
+    <title>Weather Duck's Roguelike Adventure</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
@@ -100,8 +100,8 @@
         <div id="hud">
             <div id="health-container">Health: <span id="health">100 / 100</span></div>
             <div id="floor-container">Floor: <span id="floor">1</span></div>
-            <div id="timer-container">Time: <span id="timer">00:00</span></div>
             <div id="inventory-container">Inventory: <span id="inventory"></span></div>
+            <div id="timer-container">Time: <span id="timer">00:00</span></div>
         </div>
         <canvas id="gameCanvas"></canvas>
     </div>
@@ -127,7 +127,6 @@
         <div class="modal-content">
             <h2 class="text-3xl mb-4 text-red-500">GAME OVER</h2>
             <p class="mb-6">The weather remains in the clutches of IMT Lazarus...</p>
-            <p class="mb-6">Final Time: <span id="final-time-lost">00:00</span></p>
             <button id="restart-button" class="button">Try Again</button>
         </div>
     </div>
@@ -136,7 +135,6 @@
         <div class="modal-content">
             <h2 class="text-3xl mb-4 text-yellow-400">YOU WIN!</h2>
             <p class="mb-6">You defeated IMT Lazarus and restored the weather! The world is soggy and grateful.</p>
-            <p class="mb-6">Final Time: <span id="final-time-won">00:00</span></p>
             <button id="play-again-button" class="button">Play Again</button>
         </div>
     </div>
@@ -162,7 +160,7 @@
             health: document.getElementById('health'),
             floor: document.getElementById('floor'),
             inventory: document.getElementById('inventory'),
-            timer: document.getElementById('timer') // ADDED: Reference to the timer element
+            timer: document.getElementById('timer') // ADDED
         };
         const startScreen = document.getElementById('start-screen');
         const itemSelectionScreen = document.getElementById('item-selection-screen');
@@ -174,10 +172,6 @@
         const playAgainButton = document.getElementById('play-again-button');
         const finishGameButton = document.getElementById('finish-game-button');
         const continueGameButton = document.getElementById('continue-game-button');
-        
-        // ADDED: References for final time display
-        const finalTimeLost = document.getElementById('final-time-lost');
-        const finalTimeWon = document.getElementById('final-time-won');
         
         // Game Constants
         const PLAYER_SIZE = 30;
@@ -191,8 +185,7 @@
 
         // Game State
         let player, enemies, bullets, enemyBullets, floor, keys, lastShotTime, doors, endlessMode, explosions;
-        // ADDED: Timer variables
-        let timerInterval, elapsedSeconds;
+        let timerInterval, elapsedSeconds; // ADDED
 
         // --- Item Definitions ---
         const ITEMS = [
@@ -261,69 +254,13 @@
             endlessMode = false;
             explosions = [];
             
-            // ADDED: Reset timer state on initialization
+            // ADDED: Reset the timer
             elapsedSeconds = 0;
             if (timerInterval) clearInterval(timerInterval);
             hud.timer.textContent = '00:00';
             
             nextLevel();
         }
-
-        // ... (The rest of your existing game code is unchanged) ...
-        // I will only show the functions that were modified.
-
-        // --- Game State Management ---
-        function startGame() {
-            startScreen.classList.add('hidden');
-            gameState = 'playing';
-            init();
-            startTimer(); // ADDED: Start the timer when the game begins
-            requestAnimationFrame(gameLoop);
-        }
-
-        function gameOver() {
-            gameState = 'game_over';
-            gameOverScreen.classList.remove('hidden');
-            clearInterval(timerInterval); // ADDED: Stop the timer
-            finalTimeLost.textContent = hud.timer.textContent; // ADDED: Update final time display
-        }
-
-        function winGame() {
-            gameState = 'post_boss';
-            postBossScreen.classList.remove('hidden');
-            clearInterval(timerInterval); // ADDED: Stop the timer
-            // This is a special case. To show the time on the final win screen, we'll
-            // grab it here and pass it when the "Finish Game" button is clicked.
-            const finalTime = hud.timer.textContent;
-            finishGameButton.onclick = () => {
-                postBossScreen.classList.add('hidden');
-                winScreen.classList.remove('hidden');
-                finalTimeWon.textContent = finalTime;
-            };
-        }
-        
-        // ADDED: New function to handle the timer logic
-        function startTimer() {
-            if (timerInterval) clearInterval(timerInterval); // Clear any existing timer
-
-            timerInterval = setInterval(() => {
-                // Only increment the timer if the game is actively being played
-                if (gameState === 'playing') {
-                    elapsedSeconds++;
-                    const minutes = Math.floor(elapsedSeconds / 60).toString().padStart(2, '0');
-                    const seconds = (elapsedSeconds % 60).toString().padStart(2, '0');
-                    hud.timer.textContent = `${minutes}:${seconds}`;
-                }
-            }, 1000);
-        }
-
-        // Paste the rest of your unchanged JavaScript code below
-        // from 'function nextLevel()' to the end of the file.
-        // The core game logic remains the same.
-    </script>
-    <script>
-    // NOTE: For clarity, the unchanged parts of your JavaScript are placed here.
-    // In your actual file, this would all be in one <script> tag.
 
         function nextLevel() {
             floor++;
@@ -659,7 +596,7 @@
                 if (tookDamage) {
                     player.health -= damageAmount;
                     player.invincible = true;
-                    player.invincibilityEndTime = Date.now() + 1000; // 1 second of invincibility
+                    player.invincibilityEndTime = Date.now() + 5000; // 5 seconds of invincibility
                     updateHUD();
                     if (player.health <= 0) {
                         gameOver();
@@ -738,7 +675,7 @@
         function drawBullet(bullet) {
             ctx.fillStyle = '#00BFFF'; // DeepSkyBlue
             ctx.beginPath();
-            ctx.arc(bullet.x + bullet.size / 2, bullet.y + bullet.size / 2, bullet.size / 2, 0, Math.PI * 2);
+            ctx.arc(bullet.x + bullet.size / 2, bullet.y + bullet.size / 2, bullet.size, 0, Math.PI * 2);
             ctx.fill();
         }
         
@@ -785,12 +722,47 @@
         }
         
         // --- Game State Management ---
+        function startGame() {
+            startScreen.classList.add('hidden');
+            gameState = 'playing';
+            init();
+            startTimer(); // ADDED
+            requestAnimationFrame(gameLoop);
+        }
+        
         function levelClear() {
             gameState = 'item_selection';
             lastTime = 0; // Reset delta time calculation
             showItemSelection();
         }
-    </script>
 
+        function gameOver() {
+            gameState = 'game_over';
+            gameOverScreen.classList.remove('hidden');
+            clearInterval(timerInterval); // ADDED
+        }
+
+        function winGame() {
+            gameState = 'post_boss';
+            postBossScreen.classList.remove('hidden');
+            clearInterval(timerInterval); // ADDED
+        }
+
+        // ADDED: The entire timer function
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (gameState === 'playing') {
+                    elapsedSeconds++;
+                    const minutes = Math.floor(elapsedSeconds / 60).toString().padStart(2, '0');
+                    const seconds = (elapsedSeconds % 60).toString().padStart(2, '0');
+                    hud.timer.textContent = `${minutes}:${seconds}`;
+                }
+            }, 1000);
+        }
+
+        // Your original event listeners and other functions remain the same...
+        // This includes createEnemy, createBullet, event listeners, etc.
+    </script>
 </body>
 </html>
